@@ -19,11 +19,23 @@ export default function ProductCard({ product }: ProductCardProps) {
 
     const price = parseFloat(product.priceRange.minVariantPrice.amount);
     const currency = product.priceRange.minVariantPrice.currencyCode;
-    const formattedPrice = price.toLocaleString("en-IN", {
-        style: "currency",
-        currency: currency === "INR" ? "INR" : currency,
-        minimumFractionDigits: 0,
-    });
+    const formatPrice = (amount: number) =>
+        amount.toLocaleString("en-IN", {
+            style: "currency",
+            currency: currency === "INR" ? "INR" : currency,
+            minimumFractionDigits: 0,
+        });
+    const formattedPrice = formatPrice(price);
+
+    // Compare-at price logic
+    const compareAtAmount = product.compareAtPriceRange?.minVariantPrice
+        ? parseFloat(product.compareAtPriceRange.minVariantPrice.amount)
+        : null;
+    const hasDiscount = compareAtAmount !== null && compareAtAmount > price;
+    const discountPercent = hasDiscount
+        ? Math.round(((compareAtAmount - price) / compareAtAmount) * 100)
+        : 0;
+    const formattedCompareAtPrice = hasDiscount ? formatPrice(compareAtAmount) : null;
 
     const handleQuickAdd = (e: React.MouseEvent) => {
         e.preventDefault();
@@ -55,6 +67,13 @@ export default function ProductCard({ product }: ProductCardProps) {
                     sizes="(max-width: 640px) 50vw, (max-width: 1024px) 33vw, 25vw"
                 />
 
+                {/* Discount badge */}
+                {hasDiscount && (
+                    <div className="absolute top-3 left-3 z-10 px-2 py-1 bg-sale text-white text-[10px] font-semibold uppercase tracking-wider rounded-md">
+                        -{discountPercent}%
+                    </div>
+                )}
+
                 {/* Wishlist */}
                 <button
                     onClick={handleWishlistToggle}
@@ -77,7 +96,7 @@ export default function ProductCard({ product }: ProductCardProps) {
                 )}
 
                 {/* Sold out badge */}
-                {!product.availableForSale && (
+                {!product.availableForSale && !hasDiscount && (
                     <div className="absolute top-3 left-3 z-10 px-2.5 py-1 bg-white/90 text-text-secondary text-[10px] font-semibold uppercase tracking-wider rounded-md">
                         Sold Out
                     </div>
@@ -91,7 +110,12 @@ export default function ProductCard({ product }: ProductCardProps) {
                         {product.title}
                     </h3>
                 </Link>
-                <p className="text-sm font-semibold text-text-primary">{formattedPrice}</p>
+                <div className="flex items-center gap-2">
+                    <p className="text-sm font-semibold text-text-primary">{formattedPrice}</p>
+                    {formattedCompareAtPrice && (
+                        <p className="text-xs text-text-muted line-through">{formattedCompareAtPrice}</p>
+                    )}
+                </div>
             </div>
         </div>
     );

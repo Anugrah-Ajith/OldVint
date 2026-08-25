@@ -61,11 +61,23 @@ export default function ProductDetailsClient({
 
     const price = parseFloat(selectedVariant?.price?.amount || "0");
     const currency = selectedVariant?.price?.currencyCode || "INR";
-    const formattedPrice = price.toLocaleString("en-IN", {
-        style: "currency",
-        currency: currency === "INR" ? "INR" : currency,
-        minimumFractionDigits: 0,
-    });
+    const formatPrice = (amount: number) =>
+        amount.toLocaleString("en-IN", {
+            style: "currency",
+            currency: currency === "INR" ? "INR" : currency,
+            minimumFractionDigits: 0,
+        });
+    const formattedPrice = formatPrice(price);
+
+    // Compare-at price logic (variant-level)
+    const compareAtAmount = selectedVariant?.compareAtPrice
+        ? parseFloat(selectedVariant.compareAtPrice.amount)
+        : null;
+    const hasDiscount = compareAtAmount !== null && compareAtAmount > price;
+    const discountPercent = hasDiscount
+        ? Math.round(((compareAtAmount - price) / compareAtAmount) * 100)
+        : 0;
+    const formattedCompareAtPrice = hasDiscount ? formatPrice(compareAtAmount) : null;
 
     const uniqueOptions: { name: string; values: string[] }[] = [];
     if (product.options) {
@@ -132,7 +144,17 @@ export default function ProductDetailsClient({
                             <h1 className="font-serif text-2xl sm:text-3xl font-medium text-text-primary leading-tight">
                                 {product.title}
                             </h1>
-                            <p className="text-2xl font-semibold text-text-primary mt-3">{formattedPrice}</p>
+                            <div className="flex items-center gap-3 mt-3">
+                                <p className="text-2xl font-semibold text-text-primary">{formattedPrice}</p>
+                                {formattedCompareAtPrice && (
+                                    <p className="text-base text-text-muted line-through">{formattedCompareAtPrice}</p>
+                                )}
+                                {hasDiscount && (
+                                    <span className="px-2 py-0.5 bg-sale text-white text-xs font-semibold rounded-md">
+                                        -{discountPercent}%
+                                    </span>
+                                )}
+                            </div>
                         </div>
 
                         {/* Variant selectors */}
@@ -244,6 +266,14 @@ export default function ProductDetailsClient({
             <div className="fixed bottom-0 left-0 right-0 bg-white border-t border-border p-4 flex items-center gap-3 lg:hidden z-40">
                 <div>
                     <p className="text-lg font-semibold">{formattedPrice}</p>
+                    {formattedCompareAtPrice && (
+                        <div className="flex items-center gap-1.5">
+                            <span className="text-xs text-text-muted line-through">{formattedCompareAtPrice}</span>
+                            {hasDiscount && (
+                                <span className="text-xs font-semibold text-sale">-{discountPercent}%</span>
+                            )}
+                        </div>
+                    )}
                 </div>
                 <button
                     onClick={handleAddToCart}

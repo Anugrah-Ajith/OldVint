@@ -5,6 +5,10 @@ export interface ProductVariant {
     amount: string;
     currencyCode: string;
   };
+  compareAtPrice?: {
+    amount: string;
+    currencyCode: string;
+  };
   availableForSale: boolean;
   selectedOptions: { name: string; value: string }[];
 }
@@ -24,6 +28,12 @@ export interface Product {
   descriptionHtml?: string;
   images: ProductImage[];
   priceRange: {
+    minVariantPrice: {
+      amount: string;
+      currencyCode: string;
+    };
+  };
+  compareAtPriceRange?: {
     minVariantPrice: {
       amount: string;
       currencyCode: string;

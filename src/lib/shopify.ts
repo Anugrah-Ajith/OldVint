@@ -155,6 +155,12 @@ export const shopifyClient = {
                     currencyCode
                   }
                 }
+                compareAtPriceRange {
+                  minVariantPrice {
+                    amount
+                    currencyCode
+                  }
+                }
                 images(first: 5) {
                   edges {
                     node {
@@ -174,6 +180,10 @@ export const shopifyClient = {
                       title
                       availableForSale
                       price {
+                        amount
+                        currencyCode
+                      }
+                      compareAtPrice {
                         amount
                         currencyCode
                       }
@@ -219,6 +229,12 @@ export const shopifyClient = {
                 currencyCode: node.priceRange.minVariantPrice.currencyCode,
               },
             },
+            compareAtPriceRange: node.compareAtPriceRange?.minVariantPrice ? {
+              minVariantPrice: {
+                amount: node.compareAtPriceRange.minVariantPrice.amount,
+                currencyCode: node.compareAtPriceRange.minVariantPrice.currencyCode,
+              },
+            } : undefined,
             variants: node.variants.edges.map((v: any) => ({
               id: v.node.id,
               title: v.node.title,
@@ -226,6 +242,10 @@ export const shopifyClient = {
                 amount: v.node.price.amount,
                 currencyCode: v.node.price.currencyCode,
               },
+              compareAtPrice: v.node.compareAtPrice ? {
+                amount: v.node.compareAtPrice.amount,
+                currencyCode: v.node.compareAtPrice.currencyCode,
+              } : undefined,
               availableForSale: v.node.availableForSale,
               selectedOptions: v.node.selectedOptions,
             })),
@@ -296,6 +316,12 @@ export const shopifyClient = {
                 currencyCode
               }
             }
+            compareAtPriceRange {
+              minVariantPrice {
+                amount
+                currencyCode
+              }
+            }
             images(first: 10) {
               edges {
                 node {
@@ -315,6 +341,10 @@ export const shopifyClient = {
                   title
                   availableForSale
                   price {
+                    amount
+                    currencyCode
+                  }
+                  compareAtPrice {
                     amount
                     currencyCode
                   }
@@ -351,6 +381,12 @@ export const shopifyClient = {
               currencyCode: p.priceRange.minVariantPrice.currencyCode,
             },
           },
+          compareAtPriceRange: p.compareAtPriceRange?.minVariantPrice ? {
+            minVariantPrice: {
+              amount: p.compareAtPriceRange.minVariantPrice.amount,
+              currencyCode: p.compareAtPriceRange.minVariantPrice.currencyCode,
+            },
+          } : undefined,
           variants: p.variants.edges.map((v: any) => ({
             id: v.node.id,
             title: v.node.title,
@@ -358,6 +394,10 @@ export const shopifyClient = {
               amount: v.node.price.amount,
               currencyCode: v.node.price.currencyCode,
             },
+            compareAtPrice: v.node.compareAtPrice ? {
+              amount: v.node.compareAtPrice.amount,
+              currencyCode: v.node.compareAtPrice.currencyCode,
+            } : undefined,
             availableForSale: v.node.availableForSale,
             selectedOptions: v.node.selectedOptions,
           })),
@@ -386,6 +426,12 @@ export const shopifyClient = {
             description
             availableForSale
             priceRange {
+              minVariantPrice {
+                amount
+                currencyCode
+              }
+            }
+            compareAtPriceRange {
               minVariantPrice {
                 amount
                 currencyCode
@@ -423,6 +469,12 @@ export const shopifyClient = {
               currencyCode: p.priceRange.minVariantPrice.currencyCode,
             },
           },
+          compareAtPriceRange: p.compareAtPriceRange?.minVariantPrice ? {
+            minVariantPrice: {
+              amount: p.compareAtPriceRange.minVariantPrice.amount,
+              currencyCode: p.compareAtPriceRange.minVariantPrice.currencyCode,
+            },
+          } : undefined,
           variants: [],
           collections: [],
           rating: 4.8,
