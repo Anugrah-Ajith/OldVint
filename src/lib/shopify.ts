@@ -1,8 +1,8 @@
 import { PRODUCTS, COLLECTIONS, Product, Collection } from "./products-data";
 
 // Shopify Storefront API Configuration
-const SHOPIFY_STOREFRONT_ACCESS_TOKEN = process.env.NEXT_PUBLIC_SHOPIFY_STOREFRONT_ACCESS_TOKEN || "";
-const SHOPIFY_STORE_DOMAIN = process.env.NEXT_PUBLIC_SHOPIFY_STORE_DOMAIN || "";
+const SHOPIFY_STOREFRONT_ACCESS_TOKEN = process.env.NEXT_PUBLIC_SHOPIFY_STOREFRONT_ACCESS_TOKEN || "c2335bc8efbfbfd9a89333c7a94fbd0a";
+const SHOPIFY_STORE_DOMAIN = process.env.NEXT_PUBLIC_SHOPIFY_STORE_DOMAIN || "shopoldvint.myshopify.com";
 const API_VERSION = "2024-01";
 
 // Helper check to determine if Shopify is active
