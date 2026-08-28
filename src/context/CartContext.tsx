@@ -112,18 +112,13 @@ export const CartProvider: React.FC<{ children: React.ReactNode }> = ({ children
             if (url && url !== "#") {
                 window.location.href = url; // Redirect to actual Shopify checkout URL
             } else {
-                // Fallback for mocked store data running locally without live env keys
-                alert(
-                    `[LOCAL MODE] Redirecting to Checkout\nTotal Items: ${cartCount}\nSubtotal: ₹${cartTotal.toFixed(
-                        2
-                    )}\n\n(Add real Shopify API keys to .env.local to redirect to live checkout)`
-                );
-                clearCart();
-                setIsOpen(false);
+                // This should no longer happen since createCheckout now throws on errors
+                console.error("Checkout returned empty URL. Cart items:", JSON.stringify(lineItems));
+                alert("Unable to create checkout. Please try again.");
             }
-        } catch (error) {
+        } catch (error: any) {
             console.error("Error creating checkout: ", error);
-            alert("Checkout temporarily unavailable. Please try again later.");
+            alert(`Checkout error: ${error.message || "Please try again later."}`);
         }
     };
 

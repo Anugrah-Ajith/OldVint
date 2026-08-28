@@ -17,30 +17,50 @@ const isShopifyConfigured = () => {
 async function shopifyFetch<T>({
   query,
   variables = {},
+  cache: useCache = true,
 }: {
   query: string;
   variables?: Record<string, any>;
+  cache?: boolean;
 }): Promise<{ data: T; errors?: any[] } | null> {
-  if (!isShopifyConfigured()) return null;
+  if (!isShopifyConfigured()) {
+    console.warn("Shopify is not configured. Domain:", SHOPIFY_STORE_DOMAIN, "Token present:", !!SHOPIFY_STOREFRONT_ACCESS_TOKEN);
+    return null;
+  }
 
   const endpoint = `https://${SHOPIFY_STORE_DOMAIN}/api/${API_VERSION}/graphql.json`;
 
   try {
-    const response = await fetch(endpoint, {
+    // Build fetch options - only include `next` revalidation in server-side contexts
+    const isServer = typeof window === "undefined";
+    const fetchOptions: RequestInit & { next?: { revalidate: number } } = {
       method: "POST",
       headers: {
         "Content-Type": "application/json",
         "X-Shopify-Storefront-Access-Token": SHOPIFY_STOREFRONT_ACCESS_TOKEN,
       },
       body: JSON.stringify({ query, variables }),
-      next: { revalidate: 60 }, // ISR/cache options
-    });
+    };
 
-    if (!response.ok) {
-      throw new Error(`Shopify API error: ${response.statusText}`);
+    if (isServer && useCache) {
+      fetchOptions.next = { revalidate: 60 };
     }
 
-    return await response.json();
+    const response = await fetch(endpoint, fetchOptions);
+
+    if (!response.ok) {
+      const errorBody = await response.text();
+      console.error(`Shopify API error ${response.status}: ${response.statusText}`, errorBody);
+      throw new Error(`Shopify API error: ${response.status} ${response.statusText}`);
+    }
+
+    const json = await response.json();
+
+    if (json.errors) {
+      console.error("Shopify GraphQL errors:", JSON.stringify(json.errors, null, 2));
+    }
+
+    return json;
   } catch (error) {
     console.error("Failed to query Shopify Storefront API:", error);
     return null;
@@ -499,8 +519,11 @@ export const shopifyClient = {
   // Create a checkout session utilizing Storefront API cartCreate
   async createCheckout(lineItems: { variantId: string; quantity: number }[]): Promise<string> {
     if (!isShopifyConfigured()) {
+      console.warn("Shopify not configured, cannot create checkout");
       return "#";
     }
+
+    console.log("Creating Shopify checkout with line items:", JSON.stringify(lineItems));
 
     const mutation = `
             mutation cartCreate($input: CartInput!) {
@@ -525,8 +548,11 @@ export const shopifyClient = {
 
     const res = await shopifyFetch<{ cartCreate: any }>({
       query: mutation,
-      variables: { input }
+      variables: { input },
+      cache: false, // Never cache mutations
     });
+
+    console.log("Shopify cartCreate response:", JSON.stringify(res, null, 2));
 
     if (res?.data?.cartCreate?.cart?.checkoutUrl) {
       return res.data.cartCreate.cart.checkoutUrl;
@@ -534,8 +560,12 @@ export const shopifyClient = {
 
     if (res?.data?.cartCreate?.userErrors?.length) {
       console.error("Cart creation failed:", res.data.cartCreate.userErrors);
+      throw new Error(res.data.cartCreate.userErrors.map((e: any) => e.message).join(", "));
     }
 
+    if (!res) {
+      throw new Error("No response from Shopify API - check network and credentials");
+    }
     return "#";
   }
 };
