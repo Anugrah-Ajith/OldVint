@@ -40,6 +40,7 @@ async function shopifyFetch<T>({
         "X-Shopify-Storefront-Access-Token": SHOPIFY_STOREFRONT_ACCESS_TOKEN,
       },
       body: JSON.stringify({ query, variables }),
+      cache: useCache ? "default" : "no-store",
     };
 
     if (isServer && useCache) {

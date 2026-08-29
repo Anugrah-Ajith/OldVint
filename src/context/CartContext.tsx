@@ -118,7 +118,12 @@ export const CartProvider: React.FC<{ children: React.ReactNode }> = ({ children
             }
         } catch (error: any) {
             console.error("Error creating checkout: ", error);
-            alert(`Checkout error: ${error.message || "Please try again later."}`);
+            if (error.message && typeof error.message === "string" && error.message.toLowerCase().includes("does not exist")) {
+                alert("Your cart contained outdated items and has been cleared. Please add the items again.");
+                clearCart();
+            } else {
+                alert(`Checkout error: ${error.message || "Please try again later."}`);
+            }
         }
     };
 
