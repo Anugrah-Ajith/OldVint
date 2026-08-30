@@ -2,7 +2,7 @@
 
 import React from "react";
 import Link from "next/link";
-import { Globe, Phone, Mail } from "lucide-react";
+import { Instagram, Phone, Mail } from "lucide-react";
 
 const FOOTER_LINKS = {
     Shop: [
@@ -36,8 +36,8 @@ export default function Footer() {
                             Premium fashion, curated for the modern individual.
                         </p>
                         <div className="flex gap-3 mt-6">
-                            <a href="#" aria-label="Globe" className="p-2 border border-white/15 rounded-lg hover:border-white/40 transition-colors">
-                                <Globe className="h-4 w-4" />
+                            <a href="https://www.instagram.com/oldvint.in?utm_source=ig_web_button_share_sheet&igsi=ZDNlZDc0MzIxNw==" target="_blank" rel="noopener noreferrer" aria-label="Instagram" className="p-2 border border-white/15 rounded-lg hover:border-white/40 transition-colors">
+                                <Instagram className="h-4 w-4" />
                             </a>
                             <a href="tel:9482459303" aria-label="Phone" className="p-2 border border-white/15 rounded-lg hover:border-white/40 transition-colors">
                                 <Phone className="h-4 w-4" />
