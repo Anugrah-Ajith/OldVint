@@ -1,0 +1,4 @@
+Vercel CLI 59.5.0 (Node.js 24.11.0)
+Deploying oldvint
+Error: Project names can be up to 100 characters long and must be lowercase. They can include letters, digits, and the following characters: '.', '_', '-'. However, they cannot contain the sequence '---'.
+Learn More: https://vercel.com/docs/projects/overview#project-name

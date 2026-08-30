@@ -106,8 +106,20 @@ export const CartProvider: React.FC<{ children: React.ReactNode }> = ({ children
                 quantity: item.quantity,
             }));
 
-            // Make live request to Shopify Storefront API 
-            const url = await shopifyClient.createCheckout(lineItems);
+            // Make request to our server-side API checkout endpoint
+            const response = await fetch("/api/checkout", {
+                method: "POST",
+                headers: { "Content-Type": "application/json" },
+                body: JSON.stringify({ lineItems }),
+            });
+
+            const data = await response.json();
+
+            if (!response.ok) {
+                throw new Error(data.error || "Failed to create checkout via API");
+            }
+
+            const url = data.url;
 
             if (url && url !== "#") {
                 window.location.href = url; // Redirect to actual Shopify checkout URL

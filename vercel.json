@@ -1,5 +1,4 @@
 {
-    "name": "oldvint",
     "framework": "nextjs",
     "env": {
         "NEXT_PUBLIC_SHOPIFY_STORE_DOMAIN": "shopoldvint.myshopify.com",

@@ -1,0 +1,15 @@
+Vercel CLI 59.5.0 (Node.js 24.11.0)
+Fetching projects in anugrah-ajiths-projects
+> Projects found under anugrah-ajiths-projects  [2s]
+
+  Project Name                       Latest Production URL                                                         Updated   Node Version   
+  roman                              https://roman-three-roan.vercel.app                                           19d       24.x           
+  service-connect-poig               https://service-connect-poig-anugrah-ajiths-projects.vercel.app               30d       24.x           
+  service-connect-1kqj               https://service-connect-1kqj-anugrah-ajiths-projects.vercel.app               30d       24.x           
+  service-connect                    https://service-connect-anugrah-ajiths-projects.vercel.app                    30d       24.x           
+  anugrah-portfolio                  https://anugrah-portfolio-five.vercel.app                                     50d       24.x           
+  lung-cancer-prediction-ml          https://lung-cancer-prediction-ml.vercel.app                                  61d       24.x           
+  guest-house-website                https://guest-house-website-sigma.vercel.app                                  100d      24.x           
+  netflixclone                       https://netflixclone-pied-rho.vercel.app                                      103d      24.x           
+  anugrah-ajith-personal-portfolio   https://anugrah-ajith-personal-portfolio-anugrah-ajiths-projects.vercel.app   103d      24.x           
+

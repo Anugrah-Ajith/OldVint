@@ -1,0 +1,4 @@
+Vercel CLI 59.5.0 (Node.js 24.11.0)
+Retrieving project…
+Your Project was either deleted, transferred to a new Team, or you don’t have access to it anymore.
+Error: Expected directory but found file: C:\Users\Anugrah\OneDrive\Desktop\PROJECTS\SHOPIFY\shopifydeploy
