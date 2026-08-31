@@ -2,7 +2,7 @@
 
 import React from "react";
 import Link from "next/link";
-import { Instagram, Phone, Mail } from "lucide-react";
+import { Phone, Mail } from "lucide-react";
 
 const FOOTER_LINKS = {
     Shop: [
@@ -37,7 +37,7 @@ export default function Footer() {
                         </p>
                         <div className="flex gap-3 mt-6">
                             <a href="https://www.instagram.com/oldvint.in?utm_source=ig_web_button_share_sheet&igsi=ZDNlZDc0MzIxNw==" target="_blank" rel="noopener noreferrer" aria-label="Instagram" className="p-2 border border-white/15 rounded-lg hover:border-white/40 transition-colors">
-                                <Instagram className="h-4 w-4" />
+                                <svg xmlns="http://www.w3.org/2000/svg" className="h-4 w-4" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><rect width="20" height="20" x="2" y="2" rx="5" ry="5" /><path d="M16 11.37A4 4 0 1 1 12.63 8 4 4 0 0 1 16 11.37z" /><line x1="17.5" x2="17.51" y1="6.5" y2="6.5" /></svg>
                             </a>
                             <a href="tel:9482459303" aria-label="Phone" className="p-2 border border-white/15 rounded-lg hover:border-white/40 transition-colors">
                                 <Phone className="h-4 w-4" />
