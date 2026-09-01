@@ -212,6 +212,10 @@ export const shopifyClient = {
                         name
                         value
                       }
+                      image {
+                        url
+                        altText
+                      }
                     }
                   }
                 }
@@ -269,6 +273,7 @@ export const shopifyClient = {
               } : undefined,
               availableForSale: v.node.availableForSale,
               selectedOptions: v.node.selectedOptions,
+              image: v.node.image ? { url: v.node.image.url, altText: v.node.image.altText || '' } : undefined,
             })),
             options: node.options,
             collections: [], // dynamic connection doesn't strictly need details populated for listings
@@ -373,6 +378,10 @@ export const shopifyClient = {
                     name
                     value
                   }
+                  image {
+                    url
+                    altText
+                  }
                 }
               }
             }
@@ -421,6 +430,7 @@ export const shopifyClient = {
             } : undefined,
             availableForSale: v.node.availableForSale,
             selectedOptions: v.node.selectedOptions,
+            image: v.node.image ? { url: v.node.image.url, altText: v.node.image.altText || '' } : undefined,
           })),
           options: p.options,
           collections: [],
@@ -568,5 +578,174 @@ export const shopifyClient = {
       throw new Error("No response from Shopify API - check network and credentials");
     }
     return "#";
-  }
+  },
+
+  // ──────────────────────────────────────────────
+  //  Customer Account Functions (Storefront API)
+  // ──────────────────────────────────────────────
+
+  // Register a new customer
+  async customerCreate(input: { email: string; password: string; firstName?: string; lastName?: string }): Promise<{ customer: any; customerUserErrors: any[] }> {
+    const mutation = `
+      mutation customerCreate($input: CustomerCreateInput!) {
+        customerCreate(input: $input) {
+          customer {
+            id
+            email
+            firstName
+            lastName
+          }
+          customerUserErrors {
+            code
+            field
+            message
+          }
+        }
+      }
+    `;
+    const res = await shopifyFetch<{ customerCreate: any }>({
+      query: mutation,
+      variables: { input },
+      cache: false,
+    });
+    if (res?.data?.customerCreate) {
+      return res.data.customerCreate;
+    }
+    throw new Error("Failed to create customer account");
+  },
+
+  // Login — exchange email+password for an access token
+  async customerAccessTokenCreate(email: string, password: string): Promise<{ accessToken: string; expiresAt: string }> {
+    const mutation = `
+      mutation customerAccessTokenCreate($input: CustomerAccessTokenCreateInput!) {
+        customerAccessTokenCreate(input: $input) {
+          customerAccessToken {
+            accessToken
+            expiresAt
+          }
+          customerUserErrors {
+            code
+            field
+            message
+          }
+        }
+      }
+    `;
+    const res = await shopifyFetch<{ customerAccessTokenCreate: any }>({
+      query: mutation,
+      variables: { input: { email, password } },
+      cache: false,
+    });
+    const data = res?.data?.customerAccessTokenCreate;
+    if (data?.customerUserErrors?.length > 0) {
+      throw new Error(data.customerUserErrors.map((e: any) => e.message).join(", "));
+    }
+    if (data?.customerAccessToken) {
+      return data.customerAccessToken;
+    }
+    throw new Error("Invalid email or password");
+  },
+
+  // Fetch customer profile + order history using their access token
+  async getCustomer(accessToken: string): Promise<any> {
+    const query = `
+      query getCustomer($customerAccessToken: String!) {
+        customer(customerAccessToken: $customerAccessToken) {
+          id
+          firstName
+          lastName
+          email
+          phone
+          defaultAddress {
+            id
+            address1
+            address2
+            city
+            province
+            country
+            zip
+          }
+          addresses(first: 5) {
+            edges {
+              node {
+                id
+                address1
+                address2
+                city
+                province
+                country
+                zip
+              }
+            }
+          }
+          orders(first: 20, sortKey: PROCESSED_AT, reverse: true) {
+            edges {
+              node {
+                id
+                orderNumber
+                processedAt
+                financialStatus
+                fulfillmentStatus
+                totalPrice {
+                  amount
+                  currencyCode
+                }
+                lineItems(first: 20) {
+                  edges {
+                    node {
+                      title
+                      quantity
+                      variant {
+                        image {
+                          url
+                          altText
+                        }
+                        price {
+                          amount
+                          currencyCode
+                        }
+                      }
+                    }
+                  }
+                }
+              }
+            }
+          }
+        }
+      }
+    `;
+    const res = await shopifyFetch<{ customer: any }>({
+      query,
+      variables: { customerAccessToken: accessToken },
+      cache: false,
+    });
+    if (res?.data?.customer) {
+      return res.data.customer;
+    }
+    return null;
+  },
+
+  // Send password recovery email
+  async customerRecover(email: string): Promise<{ customerUserErrors: any[] }> {
+    const mutation = `
+      mutation customerRecover($email: String!) {
+        customerRecover(email: $email) {
+          customerUserErrors {
+            code
+            field
+            message
+          }
+        }
+      }
+    `;
+    const res = await shopifyFetch<{ customerRecover: any }>({
+      query: mutation,
+      variables: { email },
+      cache: false,
+    });
+    if (res?.data?.customerRecover) {
+      return res.data.customerRecover;
+    }
+    throw new Error("Failed to send recovery email");
+  },
 };

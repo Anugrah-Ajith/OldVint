@@ -1,6 +1,6 @@
 "use client";
 
-import React, { useState } from "react";
+import React, { useState, useMemo, useCallback } from "react";
 import Link from "next/link";
 import Image from "next/image";
 import { Product, ProductVariant } from "@/lib/products-data";
@@ -45,15 +45,46 @@ export default function ProductDetailsClient({
     const [activeImage, setActiveImage] = useState(0);
     const [openSection, setOpenSection] = useState<string | null>("description");
 
-    const handleOptionChange = (optionName: string, value: string) => {
+    // Compute display images: if the selected variant has its own image,
+    // find it in the product images or prepend it so the gallery shows it.
+    const displayImages = useMemo(() => {
+        const variantImg = selectedVariant?.image;
+        if (!variantImg) return product.images;
+
+        // Check if the variant image already exists in the product images (by URL)
+        const existsInProduct = product.images.some(
+            (img) => img.url === variantImg.url
+        );
+        if (existsInProduct) return product.images;
+
+        // Prepend the variant image so it appears in the gallery
+        return [{ url: variantImg.url, altText: variantImg.altText || product.title }, ...product.images];
+    }, [selectedVariant, product.images, product.title]);
+
+    const handleOptionChange = useCallback((optionName: string, value: string) => {
         const newOptions = { ...selectedOptions, [optionName]: value };
         setSelectedOptions(newOptions);
 
         const matchingVariant = product.variants?.find((v) =>
             v.selectedOptions?.every((opt) => newOptions[opt.name] === opt.value)
         );
-        if (matchingVariant) setSelectedVariant(matchingVariant);
-    };
+        if (matchingVariant) {
+            setSelectedVariant(matchingVariant);
+
+            // Sync active image to the variant's assigned image
+            if (matchingVariant.image) {
+                const variantImgUrl = matchingVariant.image.url;
+                // Find the index in product images
+                const idx = product.images.findIndex((img) => img.url === variantImgUrl);
+                if (idx !== -1) {
+                    setActiveImage(idx);
+                } else {
+                    // Variant image will be prepended by displayImages memo, show index 0
+                    setActiveImage(0);
+                }
+            }
+        }
+    }, [selectedOptions, product.variants, product.images]);
 
     const handleAddToCart = () => {
         if (selectedVariant) addToCart(product, selectedVariant, quantity);
@@ -114,19 +145,20 @@ export default function ProductDetailsClient({
                     <div className="space-y-3">
                         <div className="relative aspect-square bg-bg-muted rounded-xl overflow-hidden">
                             <Image
-                                src={product.images[activeImage]?.url || "https://images.unsplash.com/photo-1521572163474-6864f9cf17ab?w=800"}
-                                alt={product.images[activeImage]?.altText || product.title}
+                                key={displayImages[activeImage]?.url}
+                                src={displayImages[activeImage]?.url || "https://images.unsplash.com/photo-1521572163474-6864f9cf17ab?w=800"}
+                                alt={displayImages[activeImage]?.altText || product.title}
                                 fill
                                 priority
                                 className="object-cover object-center"
                                 sizes="(max-width: 1024px) 100vw, 50vw"
                             />
                         </div>
-                        {product.images.length > 1 && (
+                        {displayImages.length > 1 && (
                             <div className="grid grid-cols-4 gap-2">
-                                {product.images.slice(0, 4).map((img, i) => (
+                                {displayImages.slice(0, 4).map((img, i) => (
                                     <button
-                                        key={i}
+                                        key={img.url}
                                         onClick={() => setActiveImage(i)}
                                         className={`relative aspect-square bg-bg-muted rounded-lg overflow-hidden border-2 transition-colors ${activeImage === i ? "border-text-primary" : "border-transparent hover:border-border-dark"
                                             }`}

@@ -3,6 +3,7 @@ import { Playfair_Display, Inter } from "next/font/google";
 import "./globals.css";
 import { CartProvider } from "@/context/CartContext";
 import { WishlistProvider } from "@/context/WishlistContext";
+import { CustomerProvider } from "@/context/CustomerContext";
 import Header from "@/components/layout/Header";
 import Footer from "@/components/layout/Footer";
 
@@ -47,13 +48,15 @@ export default function RootLayout({ children }: { children: React.ReactNode }) 
       className={`${playfair.variable} ${inter.variable} antialiased`}
     >
       <body className="min-h-screen flex flex-col bg-bg-primary text-text-primary font-sans">
-        <CartProvider>
-          <WishlistProvider>
-            <Header />
-            <main className="flex-1">{children}</main>
-            <Footer />
-          </WishlistProvider>
-        </CartProvider>
+        <CustomerProvider>
+          <CartProvider>
+            <WishlistProvider>
+              <Header />
+              <main className="flex-1">{children}</main>
+              <Footer />
+            </WishlistProvider>
+          </CartProvider>
+        </CustomerProvider>
       </body>
     </html>
   );
