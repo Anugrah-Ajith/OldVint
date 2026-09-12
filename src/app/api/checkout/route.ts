@@ -2,33 +2,20 @@ import { NextResponse } from 'next/server';
 import { shopifyClient } from '@/lib/shopify';
 
 export async function POST(request: Request) {
-    try {
-        const body = await request.json();
-        const { lineItems } = body;
-
-        if (!lineItems || !Array.isArray(lineItems) || lineItems.length === 0) {
-            return NextResponse.json(
-                { error: 'Invalid or empty lineItems provided' },
-                { status: 400 }
-            );
-        }
-
-        // Call Shopify API through the shopifyClient helper
-        const checkoutUrl = await shopifyClient.createCheckout(lineItems);
-
-        if (checkoutUrl && checkoutUrl !== '#') {
-            return NextResponse.json({ url: checkoutUrl });
-        } else {
-            return NextResponse.json(
-                { error: 'Failed to create checkout session' },
-                { status: 500 }
-            );
-        }
-    } catch (error: any) {
-        console.error('API checkout error:', error);
-        return NextResponse.json(
-            { error: error.message || 'Internal server error during checkout' },
-            { status: 500 }
-        );
+  try {
+    const { lineItems } = await request.json();
+    if (!Array.isArray(lineItems) || lineItems.length === 0) {
+      return NextResponse.json({ error: 'No line items provided' }, { status: 400 });
     }
+    // Expect lineItems shape: [{ variantId: string, quantity: number }]
+    const url = await shopifyClient.createCheckout(lineItems);
+    if (!url || url === '#') {
+      return NextResponse.json({ error: 'Failed to create checkout URL' }, { status: 500 });
+    }
+    return NextResponse.json({ url }, { status: 200 });
+  } catch (error: any) {
+    console.error('Checkout API error:', error);
+    const message = error?.message || 'Internal server error';
+    return NextResponse.json({ error: message }, { status: 500 });
+  }
 }
